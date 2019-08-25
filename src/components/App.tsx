@@ -5,13 +5,26 @@ import { StoreState } from "../reducers";
 
 interface AppProps {
     todos: Todo[];
-    fetchTodos: typeof fetchTodos;
+    fetchTodos: Function;
     deleteTodo: typeof deleteTodo;
 }
 
-class _App extends Component<AppProps> {
+interface AppState {
+    fetching: boolean;
+}
+
+class _App extends Component<AppProps, AppState> {
+    state: AppState = { fetching: false };
+
+    componentDidUpdate(prevProps: AppProps): void {
+        if (!prevProps.todos.length && this.props.todos.length) {
+            this.setState({ fetching: false });
+        }
+    }
+
     onButtonClick = (): void => {
         this.props.fetchTodos();
+        this.setState({ fetching: true });
     };
 
     onTodoClick = (id: number): void => {
@@ -32,6 +45,7 @@ class _App extends Component<AppProps> {
         return (
             <div>
                 <button onClick={this.onButtonClick}>Fetch</button>
+                {this.state.fetching ? "LOADING" : null}
                 {this.renderList()}
             </div>
         );
